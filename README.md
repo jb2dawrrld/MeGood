@@ -183,7 +183,6 @@ fitness-tracker/
 ## 🚧 Known Issues
 
 - React 19 compatibility: Use React 18 for best compatibility with AWS Amplify UI.
-- Email verification with Amplify: Unable to make this work, planning to switch to AWS Hosted UI instead for this.
 
 ## 📝 Future Enhancements
 
