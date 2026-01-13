@@ -1,7 +1,7 @@
  🏃‍♂️ Fitness Tracker Web Application
 
 A modern, real-time fitness tracking dashboard built with React and AWS serverless architecture. Track your daily steps, calories burned/consumed, heart rate, and monitor your progress toward fitness goals.
-(Built as a learning-focused project to explore AWS serverless architecture and authentication flows.)
+(Built as a learning-focused project to explore AWS serverless architecture and authentication flows. All metrics are simulated.)
 
 ## ✨ Features
 
