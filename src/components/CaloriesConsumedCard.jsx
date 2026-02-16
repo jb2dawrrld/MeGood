@@ -26,7 +26,7 @@ export default function CaloriesConsumedCard({ caloriesConsumed, onUpdate }) {
   };
 
   return (
-    <Card className="p-8 shadow-lg">
+    <Card className="p-8">
       <div className="flex flex-col items-center gap-4">
         {/* Icon and Label */}
         <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
@@ -50,13 +50,13 @@ export default function CaloriesConsumedCard({ caloriesConsumed, onUpdate }) {
             value={additionalCalories}
             onChange={(e) => setAdditionalCalories(e.target.value)}
             placeholder="Add calories..."
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent"
             disabled={isUpdating}
           />
           <button
             onClick={handleAddCalories}
             disabled={isUpdating || !additionalCalories}
-            className="w-full px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors font-medium"
+            className="w-full px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors font-medium"
           >
             {isUpdating ? "Updating..." : "Add More Calories"}
           </button>

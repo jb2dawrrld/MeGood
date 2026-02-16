@@ -1,1 +1,18 @@
 @import "tailwindcss";
+
+@theme {
+  --shadow-card: 0 0 0 1px rgb(0 0 0 / 0.04), 0 2px 4px rgb(0 0 0 / 0.05);
+}
+
+@keyframes shiny-pan {
+  0% {
+    background-position: -100% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.animate-shimmer {
+  animation: shiny-pan 2.5s ease-in-out infinite;
+}

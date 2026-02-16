@@ -1,5 +1,5 @@
 import { Card } from "./ui/Card";
-import { Target, TrendingUp } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 
 export default function GoalProgress({ 
   steps = 0, caloriesBurned = 0, caloriesConsumed = 0 }) {
@@ -39,12 +39,12 @@ export default function GoalProgress({
   ];
 
   return (
-    <Card className="p-8 shadow-sm">
+    <Card className="p-8">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <h2 className="text-2xl font-light text-gray-900 flex items-center gap-2">
 
-          Goal Progress
+          Daily Goal Progress
         </h2>
         <div className="text-sm text-gray-500">
           {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}

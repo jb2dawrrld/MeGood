@@ -3,7 +3,7 @@ import { Card } from "./ui/Card";
 
 export default function CaloriesBurnedCard({ caloriesBurned }) {
   return (
-    <Card className="p-4 shadow-lg">
+    <Card className="p-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 flex items-center justify-center">

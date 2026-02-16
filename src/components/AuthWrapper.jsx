@@ -56,35 +56,29 @@ function AuthenticatedApp({ onSignOut }) {
 export default function AuthWrapper() {
   return (
     <Authenticator
-      signUpAttributes={['preferred_username', 'name']}
+      loginMechanisms={['email']} 
+      signUpAttributes={['name', 'preferred_username']}
       formFields={{
         signUp: {
+          name: {
+            label: 'Full Name',
+            required: true,
+            order: 1,
+          },
           preferred_username: {
-            label: 'User Name',
-            placeholder: 'Enter your display name',
+            label: 'Display Name',
             required: true,
             order: 2,
           },
-          name: {
-            label: 'Full Name',
-            placeholder: 'Enter your full name',
-            required: false,
-            order: 1,
-          },
-
           email: {
             label: 'Email',
             required: true,
             order: 3,
           },
           password: {
-            label: 'Password',
-            required: true,
             order: 4,
           },
           confirm_password: {
-            label: 'Confirm Password',
-            required: true,
             order: 5,
           },
         },

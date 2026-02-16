@@ -143,29 +143,28 @@ export default function Dashboard({ userName, userFullName, userId, onSignOut })
   // Get time-based greeting
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return "Good Morning";
-    if (hour < 18) return "Good Afternoon";
-    return "Good Evening";
+    if (hour < 12) return "Good Morning,";
+    if (hour < 18) return "Good Afternoon,";
+    return "Good Evening,";
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8" style={{ fontFamily: 'DM Sans, sans-serif' }}>
-      <div className="max-w-6xl mx-auto space-y-8">
+    <div className="min-h-screen bg-gray-100" style={{ fontFamily: 'DM Sans, sans-serif' }}>
+      {/* Header with Greeting and Profile */}
+      <Header 
+        userName={userName}
+        userFullName={userFullName}
+        greeting={getGreeting()} 
+        onSignOut={onSignOut}
+      />
 
-        {/* Header with Greeting and Profile */}
-        <Header 
-          userName={userName}
-          userFullName={userFullName}
-          greeting={getGreeting()} 
-          onSignOut={onSignOut}
-        />
-
+      <div className="max-w-6xl mx-auto p-8 space-y-8">
         {/* Main Grid Layout */}
         <div className="grid grid-cols-3 gap-6">
           {/* Left Column: Heart Rate and Steps (2 rows) */}
           <div className="col-span-2 space-y-6">
             {/* Metrics Bar - Only Heart Rate and Steps */}
-            <Card className="p-8 shadow-lg">
+            <Card className="p-8">
               <div className="grid grid-cols-2 gap-8">
                 {/* Heart Rate */}
                 <MetricsCard

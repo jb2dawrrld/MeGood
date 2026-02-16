@@ -29,10 +29,10 @@ A modern, real-time fitness tracking dashboard built with React and AWS serverle
   - Date-based session management
 
 - **Responsive UI**
-  - Clean, modern design with DM Sans font
-  - Time-based greetings (Good Morning/Afternoon/Evening)
-  - User profile with initials
-  - Elegant card-based layout
+  - Clean, modern design with DM Sans & Bagel Fat One fonts
+  - Sticky header with time-based greetings (Good Morning/Afternoon/Evening)
+  - User profile with initials and dropdown
+  - Elegant card-based layout with minimal shadow
 
 ## 🛠️ Tech Stack
 
@@ -91,7 +91,7 @@ Set up authentication:
 
 ### 4. Update Configuration
 
-Edit `src/components/awsconfig.js`:
+Edit `src/awsconfig.js`:
 ```javascript
 const config = {
   Auth: {
@@ -121,24 +121,24 @@ Visit `http://localhost:5173`
 ## 📁 Project Structure
 
 ```
-fitness-tracker/
+me-good/
 ├── src/
 │   ├── components/
 │   │   ├── AuthWrapper.jsx          # Authentication wrapper
 │   │   ├── Dashboard.jsx            # Main dashboard component
-│   │   ├── Header.jsx               # Header with greeting & logout
+│   │   ├── Header.jsx               # Header with greeting & logo
 │   │   ├── MetricsCard.jsx          # Reusable metrics display
 │   │   ├── CaloriesBurnedCard.jsx   # Calories burned display
 │   │   ├── CaloriesConsumedCard.jsx # Calorie input card
 │   │   ├── GoalProgress.jsx         # Progress bars component
-│   │   ├── ActivityChart.jsx        # Chart visualization (deprecated)
-│   │   ├── awsconfig.js             # AWS Amplify configuration
 │   │   └── ui/
 │   │       └── Card.jsx             # Base card component
 │   ├── api/
 │   │   └── metrics.js               # API functions for backend
+│   ├── awsconfig.js                 # AWS Amplify configuration
 │   ├── App.jsx
-│   └── main.jsx
+│   ├── main.jsx
+│   └── index.css
 ├── lambda/
 │   ├── getMetrics.js
 │   ├── updateMetrics.js
