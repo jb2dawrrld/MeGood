@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { getMetrics, getHeartRate, updateMetrics } from "../api/metrics";
 import { Card } from "./ui/Card";
 import { Heart, Footprints } from "lucide-react";
@@ -58,6 +58,20 @@ export default function Dashboard({ userName, userFullName, userId, onSignOut })
     })();
   }, [userId]);
 
+  // Save current metrics to database (overwrites today's record)
+  const saveMetrics = useCallback(async () => {
+    const todayDate = getTodayDate();
+    
+    await updateMetrics(userId, {
+      date: todayDate,
+      steps: stepsRef.current,
+      caloriesBurned: caloriesBurnedRef.current,
+      caloriesConsumed: caloriesConsumedRef.current,
+      heartRate: heartRate,
+      timestamp: Date.now()
+    });
+  }, [heartRate, userId]);
+
   // Auto-save metrics every 60 seconds
   useEffect(() => {
     const saveInterval = setInterval(async () => {
@@ -69,7 +83,7 @@ export default function Dashboard({ userName, userFullName, userId, onSignOut })
     }, 60000); // 60 seconds
 
     return () => clearInterval(saveInterval);
-  }, []);
+  }, [saveMetrics]);
 
   // Save on window close/refresh
   useEffect(() => {
@@ -79,21 +93,7 @@ export default function Dashboard({ userName, userFullName, userId, onSignOut })
 
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, []);
-
-  // Save current metrics to database (overwrites today's record)
-  const saveMetrics = async () => {
-    const todayDate = getTodayDate();
-    
-    await updateMetrics(userId, {
-      date: todayDate,
-      steps: stepsRef.current,
-      caloriesBurned: caloriesBurnedRef.current,
-      caloriesConsumed: caloriesConsumedRef.current,
-      heartRate: heartRate,
-      timestamp: Date.now()
-    });
-  };
+  }, [saveMetrics]);
 
   // Stream new heart rate every 3 seconds
   useEffect(() => {
