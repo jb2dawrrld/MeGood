@@ -39,14 +39,14 @@ export default function GoalProgress({
   ];
 
   return (
-    <Card className="p-8">
+    <Card className="p-8 surface-premium">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
-        <h2 className="text-2xl font-light text-gray-900 flex items-center gap-2">
+        <h2 className="text-2xl font-light flex items-center gap-2" style={{ color: "var(--text-primary)" }}>
 
           Daily Goal Progress
         </h2>
-        <div className="text-sm text-gray-500">
+        <div className="text-sm" style={{ color: "var(--text-muted)" }}>
           {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
         </div>
       </div>
@@ -57,36 +57,28 @@ export default function GoalProgress({
           <div key={index} className="space-y-2">
             {/* Label and Stats */}
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700">{bar.label}</span>
+              <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>{bar.label}</span>
               <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-gray-900">
+                <span className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
                   {bar.current.toLocaleString()}
                 </span>
-                <span className="text-sm text-gray-500">/ {bar.goal.toLocaleString()} {bar.unit}</span>
+                <span className="text-sm" style={{ color: "var(--text-muted)" }}>/ {bar.goal.toLocaleString()} {bar.unit}</span>
               </div>
             </div>
 
             {/* Progress Bar */}
-            <div className="relative h-3 rounded-full overflow-hidden" style={{ backgroundColor: '#f3f4f6' }}>
+            <div className="relative h-3 rounded-full overflow-hidden" style={{ backgroundColor: "var(--ring-track)" }}>
               <div
                 className={`h-full ${bar.color} transition-all duration-1000 ease-out rounded-full relative overflow-hidden`}
                 style={{ width: `${bar.progress}%` }}
               >
-                {/* Shimmer effect */}
-                <div className="absolute inset-0 w-full h-full">
-                  <div 
-                    className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer"
-                    style={{
-                      animation: 'shimmer 2s infinite',
-                    }}
-                  />
-                </div>
+                <div className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
               </div>
             </div>
 
             {/* Percentage */}
             <div className="flex justify-end">
-              <span className="text-xs font-medium text-gray-600">
+              <span className="text-xs font-medium" style={{ color: "var(--text-muted)" }}>
                 {bar.progress.toFixed(0)}% complete
               </span>
             </div>
@@ -94,32 +86,22 @@ export default function GoalProgress({
         ))}
 
         {/* Calorie Balance Section */}
-        <div className="pt-6 mt-6 border-t border-gray-200">
+        <div className="pt-6 mt-6 border-t" style={{ borderColor: "var(--border-soft)" }}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-gray-600" />
-              <span className="text-sm font-medium text-gray-700">Calorie Balance</span>
+              <TrendingUp className="w-5 h-5" style={{ color: "var(--text-muted)" }} />
+              <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>Calorie Balance</span>
             </div>
             <div className="text-right">
               <div className={`text-lg font-semibold ${netCalories > 0 ? 'text-green-600' : 'text-red-600'}`}>
                 {netCalories > 0 ? '+' : ''}{netCalories.toLocaleString()} kcal
               </div>
-              <div className="text-xs text-gray-500 capitalize">{calorieBalance}</div>
+              <div className="text-xs capitalize" style={{ color: "var(--text-muted)" }}>{calorieBalance}</div>
             </div>
           </div>
         </div>
       </div>
 
-      <style jsx>{`
-        @keyframes shimmer {
-          0% {
-            transform: translateX(-100%);
-          }
-          100% {
-            transform: translateX(200%);
-          }
-        }
-      `}</style>
     </Card>
   );
 }

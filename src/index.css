@@ -4,6 +4,45 @@
   --shadow-card: 0 0 0 1px rgb(0 0 0 / 0.04), 0 2px 4px rgb(0 0 0 / 0.05);
 }
 
+:root {
+  --bg-app: #f3f6fb;
+  --bg-header: #f3f6fb;
+  --surface-card: #ffffff;
+  --surface-muted: #f8fafc;
+  --surface-hero: #0f172a;
+  --surface-hero-muted: #1e293b;
+  --text-primary: #0f172a;
+  --text-muted: #64748b;
+  --border-soft: #e2e8f0;
+  --ring-track: #e2e8f0;
+  --input-bg: #ffffff;
+  --accent-steps: #2563eb;
+  --accent-calories: #f59e0b;
+  --accent-heart: #e11d48;
+  --chip-positive-bg: #dcfce7;
+  --chip-positive-text: #047857;
+  --chip-negative-bg: #ffedd5;
+  --chip-negative-text: #c2410c;
+}
+
+.theme-dark {
+  --bg-app: #020617;
+  --bg-header: #020617;
+  --surface-card: #0f172a;
+  --surface-muted: #111827;
+  --surface-hero: #020617;
+  --surface-hero-muted: #0f172a;
+  --text-primary: #e2e8f0;
+  --text-muted: #94a3b8;
+  --border-soft: #334155;
+  --ring-track: #334155;
+  --input-bg: #0b1220;
+  --chip-positive-bg: #064e3b;
+  --chip-positive-text: #6ee7b7;
+  --chip-negative-bg: #7c2d12;
+  --chip-negative-text: #fdba74;
+}
+
 @keyframes shiny-pan {
   0% {
     background-position: -100% center;
@@ -15,4 +54,16 @@
 
 .animate-shimmer {
   animation: shiny-pan 2.5s ease-in-out infinite;
+}
+
+.surface-premium {
+  background: linear-gradient(160deg, var(--surface-card) 0%, var(--surface-muted) 100%);
+  border: 1px solid var(--border-soft);
+  box-shadow: 0 8px 30px rgba(15, 23, 42, 0.06);
+}
+
+.metric-title {
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
