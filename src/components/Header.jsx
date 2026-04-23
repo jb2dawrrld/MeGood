@@ -1,7 +1,14 @@
-import { LogOut } from "lucide-react";
+import { LogOut, Moon, Sun } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 
-export default function Header({ userName = '', userFullName = '', greeting = "Good Morning,", onSignOut }) {
+export default function Header({
+  userName = "",
+  userFullName = "",
+  greeting = "Good Morning,",
+  onSignOut,
+  isDarkMode = false,
+  onToggleTheme,
+}) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const dropdownRef = useRef(null);
@@ -38,20 +45,20 @@ export default function Header({ userName = '', userFullName = '', greeting = "G
   }, [isDropdownOpen]);
 
   return (
-    <header className="sticky top-0 z-40 bg-gray-100 py-4 shadow-card">
-      <div className="relative flex items-center justify-between max-w-6xl mx-auto px-8">
+    <header className="sticky top-0 z-40 py-4 shadow-card" style={{ backgroundColor: "var(--bg-header)" }}>
+      <div className="relative flex items-center justify-between max-w-7xl mx-auto px-8">
         {/* Left side: Greeting/Name */}
         <div className="flex flex-col min-w-0 flex-1">
           {!isScrolled && (
-            <p className="text-gray-500 text-base font-light mb-1" style={{ fontFamily: 'DM Sans, sans-serif' }}>
+            <p className="text-base font-light mb-1" style={{ color: "var(--text-muted)", fontFamily: "DM Sans, sans-serif" }}>
               {greeting}
             </p>
           )}
           <h1
-            className={`font-bold text-gray-900 tracking-tight transition-all duration-300 ${
-              isScrolled ? 'text-2xl' : 'text-3xl'
+            className={`font-bold tracking-tight transition-all duration-300 ${
+              isScrolled ? "text-2xl" : "text-3xl"
             }`}
-            style={{ fontFamily: 'DM Sans, sans-serif' }}
+            style={{ color: "var(--text-primary)", fontFamily: "DM Sans, sans-serif" }}
           >
             {userName}
           </h1>
@@ -60,13 +67,28 @@ export default function Header({ userName = '', userFullName = '', greeting = "G
         {/* Center: Me-Good logo */}
         <div
           className="inline-flex items-center justify-center text-5xl font-bold"
-          style={{ fontFamily: 'Bagel Fat One, sans-serif' }}
+          style={{ fontFamily: "Bagel Fat One, sans-serif", color: "var(--text-primary)" }}
         >   
             Me-Good 
         </div>
 
         {/* Right side: Profile and Nav */}
         <div className="flex items-center gap-4 min-w-0 flex-1 justify-end">
+          {onToggleTheme && (
+            <button
+              onClick={onToggleTheme}
+              className="inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm transition-colors"
+              style={{
+                borderColor: "var(--border-soft)",
+                color: "var(--text-primary)",
+                backgroundColor: "var(--surface-card)",
+              }}
+              aria-label="Toggle theme"
+            >
+              {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              {isDarkMode ? "Light" : "Dark"}
+            </button>
+          )}
           <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -78,11 +100,17 @@ export default function Header({ userName = '', userFullName = '', greeting = "G
 
           {/* Dropdown Menu */}
           {isDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-card border border-gray-200 py-2 z-50">
+            <div
+              className="absolute right-0 mt-2 w-56 rounded-lg shadow-card border py-2 z-50"
+              style={{
+                borderColor: "var(--border-soft)",
+                backgroundColor: "var(--surface-card)",
+              }}
+            >
               {/* User Info */}
-              <div className="px-4 py-3 border-b border-gray-100">
-                <p className="text-sm font-semibold text-gray-900">{userFullName || userName}</p>
-                <p className="text-xs text-gray-500 mt-0.5">@{userName}</p>
+              <div className="px-4 py-3 border-b" style={{ borderColor: "var(--border-soft)" }}>
+                <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>{userFullName || userName}</p>
+                <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>@{userName}</p>
               </div>
 
               {/* Sign Out Button */}
