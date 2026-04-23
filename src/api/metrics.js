@@ -9,13 +9,6 @@ export const getMetrics = async (userId, date) => {
   return res.data;
 };
 
-export const getMetricsRange = async (userId, startDate, endDate) => {
-  const res = await axios.get(`${API_BASE}/metrics/range`, {
-    params: { userId, startDate, endDate },
-  });
-  return res.data;
-};
-
 export const updateMetrics = async (userId, data) => {
   const res = await axios.post(`${API_BASE}/metrics`, { userId, ...data });
   return res.data;
