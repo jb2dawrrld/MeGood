@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
-import { getMetrics, getHeartRate, getMetricsRange, updateMetrics } from "../api/metrics";
+import { getMetrics, getMetricsRange, updateMetrics } from "../api/metrics";
 import { Card } from "./ui/Card";
 import { Flame, Heart, Footprints } from "lucide-react";
 import Header from "./Header";
@@ -7,6 +7,9 @@ import MetricsCard from "./MetricsCard";
 import CaloriesConsumedCard from "./CaloriesConsumedCard";
 import GoalProgress from "./GoalProgress";
 import ModernMetricsSection from "./ModernMetricsSection";
+
+const HEART_RATE_MIN = 62;
+const HEART_RATE_MAX = 120;
 
 const toIsoDate = (dateObj) => {
   const year = dateObj.getFullYear();
@@ -179,8 +182,7 @@ export default function Dashboard({ userName, userFullName, userId, onSignOut })
   useEffect(() => {
     const interval = setInterval(async () => {
       try {
-        const liveData = await getHeartRate();
-        const newHR = liveData.heartRate;
+        const newHR = Math.floor(Math.random() * (HEART_RATE_MAX - HEART_RATE_MIN + 1)) + HEART_RATE_MIN;
         setHeartRate(newHR);
         setHeartRateHistory((prev) => {
           const next = [
@@ -327,7 +329,7 @@ export default function Dashboard({ userName, userFullName, userId, onSignOut })
                   unit="bpm"
                   color="text-red-500"
                   isFirst={true}
-                  progress={Math.min((heartRate / 160) * 100, 100)}
+                  progress={Math.min((heartRate / HEART_RATE_MAX) * 100, 100)}
                   deltaLabel={`${heartRateDelta > 0 ? "+" : ""}${heartRateDelta.toFixed(0)}% vs avg`}
                   ringColor="#e11d48"
                 />

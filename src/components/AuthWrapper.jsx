@@ -57,7 +57,7 @@ export default function AuthWrapper() {
   return (
     <Authenticator
       loginMechanisms={['email']} 
-      signUpAttributes={['name', 'preferred_username']}
+      signUpAttributes={['name', 'preferred_username', 'phone_number']}
       formFields={{
         signUp: {
           name: {
@@ -75,11 +75,18 @@ export default function AuthWrapper() {
             required: true,
             order: 3,
           },
-          password: {
+          phone_number: {
+            label: 'Phone Number',
+            placeholder: '5551234567',
+            dialCode: '+1',
+            required: true,
             order: 4,
           },
-          confirm_password: {
+          password: {
             order: 5,
+          },
+          confirm_password: {
+            order: 6,
           },
         },
       }}

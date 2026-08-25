@@ -77,17 +77,269 @@ Create a table with:
 - Sort key: `date` (String, format: YYYY-MM-DD)
 
 #### Lambda Functions
-Deploy three Lambda functions:
-1. **getMetrics** - Retrieves user's metrics for a specific date
-2. **updateMetrics** - Saves/updates daily metrics
-3. **simulateHeart** - Simulates heart rate data stream
+
+Source files live in [`lambda/`](lambda/). Deploy **four** functions (the dashboard also calls `getMetricsRange` for charts):
+
+| Lambda | API Gateway route | Method |
+|--------|-------------------|--------|
+| `getMetrics` | `/metrics` | GET |
+| `getMetricsRange` | `/metrics/range` | GET |
+| `updateMetrics` | `/metrics` | POST |
+| `simulateHeart` | `/metrics/heart-rate-stream` | GET |
+
+**For each Lambda:**
+- Runtime: **Node.js 18.x** or **20.x** (AWS SDK v3 is included in the runtime)
+- Environment variable: `TABLE_NAME` = `MeGoodMetrics` (optional; defaults to `MeGoodMetrics`)
+- IAM: allow `dynamodb:GetItem`, `PutItem`, and `Query` on your table ARN (`simulateHeart` needs no DynamoDB access)
+- Enable **Lambda proxy integration** on API Gateway
+- Enable **CORS** on API Gateway (or rely on the `OPTIONS` handlers in each function)
+
+Set `VITE_API_BASE` in a `.env` file to your API Gateway stage URL, e.g. `https://abc123.execute-api.us-east-2.amazonaws.com/prod`
+
+---
+
+##### `lambda/getMetrics.js`
+
+```javascript
+const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
+const { DynamoDBDocumentClient, GetCommand } = require("@aws-sdk/lib-dynamodb");
+
+const docClient = DynamoDBDocumentClient.from(new DynamoDBClient({}));
+const TABLE_NAME = process.env.TABLE_NAME || "MeGoodMetrics";
+
+const corsHeaders = {
+  "Content-Type": "application/json",
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "Content-Type,Authorization",
+  "Access-Control-Allow-Methods": "GET,OPTIONS",
+};
+
+exports.handler = async (event) => {
+  if (event.httpMethod === "OPTIONS") {
+    return { statusCode: 200, headers: corsHeaders, body: "" };
+  }
+
+  try {
+    const userId = event.queryStringParameters?.userId;
+    const date = event.queryStringParameters?.date;
+
+    if (!userId || !date) {
+      return {
+        statusCode: 400,
+        headers: corsHeaders,
+        body: JSON.stringify({ error: "userId and date are required" }),
+      };
+    }
+
+    const result = await docClient.send(
+      new GetCommand({
+        TableName: TABLE_NAME,
+        Key: { userId, date },
+      }),
+    );
+
+    return {
+      statusCode: 200,
+      headers: corsHeaders,
+      body: JSON.stringify(result.Item || {}),
+    };
+  } catch (error) {
+    console.error("getMetrics error:", error);
+    return {
+      statusCode: 500,
+      headers: corsHeaders,
+      body: JSON.stringify({ error: "Failed to load metrics" }),
+    };
+  }
+};
+```
+
+---
+
+##### `lambda/updateMetrics.js`
+
+```javascript
+const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
+const { DynamoDBDocumentClient, PutCommand } = require("@aws-sdk/lib-dynamodb");
+
+const docClient = DynamoDBDocumentClient.from(new DynamoDBClient({}));
+const TABLE_NAME = process.env.TABLE_NAME || "MeGoodMetrics";
+
+const corsHeaders = {
+  "Content-Type": "application/json",
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "Content-Type,Authorization",
+  "Access-Control-Allow-Methods": "POST,OPTIONS",
+};
+
+exports.handler = async (event) => {
+  if (event.httpMethod === "OPTIONS") {
+    return { statusCode: 200, headers: corsHeaders, body: "" };
+  }
+
+  try {
+    const body = event.body ? JSON.parse(event.body) : {};
+    const {
+      userId,
+      date,
+      steps = 0,
+      caloriesBurned = 0,
+      caloriesConsumed = 0,
+      heartRate = 0,
+      timestamp = Date.now(),
+    } = body;
+
+    if (!userId || !date) {
+      return {
+        statusCode: 400,
+        headers: corsHeaders,
+        body: JSON.stringify({ error: "userId and date are required" }),
+      };
+    }
+
+    const item = {
+      userId,
+      date,
+      steps: Number(steps),
+      caloriesBurned: Number(caloriesBurned),
+      caloriesConsumed: Number(caloriesConsumed),
+      heartRate: Number(heartRate),
+      timestamp: Number(timestamp),
+    };
+
+    await docClient.send(
+      new PutCommand({
+        TableName: TABLE_NAME,
+        Item: item,
+      }),
+    );
+
+    return {
+      statusCode: 200,
+      headers: corsHeaders,
+      body: JSON.stringify({ success: true, item }),
+    };
+  } catch (error) {
+    console.error("updateMetrics error:", error);
+    return {
+      statusCode: 500,
+      headers: corsHeaders,
+      body: JSON.stringify({ error: "Failed to save metrics" }),
+    };
+  }
+};
+```
+
+---
+
+##### `lambda/simulateHeart.js`
+
+```javascript
+const corsHeaders = {
+  "Content-Type": "application/json",
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "Content-Type,Authorization",
+  "Access-Control-Allow-Methods": "GET,OPTIONS",
+};
+
+exports.handler = async (event) => {
+  if (event.httpMethod === "OPTIONS") {
+    return { statusCode: 200, headers: corsHeaders, body: "" };
+  }
+
+  try {
+    const heartRate = Math.floor(Math.random() * (175 - 62 + 1)) + 62;
+
+    return {
+      statusCode: 200,
+      headers: corsHeaders,
+      body: JSON.stringify({ heartRate }),
+    };
+  } catch (error) {
+    console.error("simulateHeart error:", error);
+    return {
+      statusCode: 500,
+      headers: corsHeaders,
+      body: JSON.stringify({ error: "Failed to simulate heart rate" }),
+    };
+  }
+};
+```
+
+---
+
+##### `lambda/getMetricsRange.js` (required for trend charts)
+
+```javascript
+const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
+const { DynamoDBDocumentClient, QueryCommand } = require("@aws-sdk/lib-dynamodb");
+
+const docClient = DynamoDBDocumentClient.from(new DynamoDBClient({}));
+const TABLE_NAME = process.env.TABLE_NAME || "MeGoodMetrics";
+
+const corsHeaders = {
+  "Content-Type": "application/json",
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "Content-Type,Authorization",
+  "Access-Control-Allow-Methods": "GET,OPTIONS",
+};
+
+exports.handler = async (event) => {
+  if (event.httpMethod === "OPTIONS") {
+    return { statusCode: 200, headers: corsHeaders, body: "" };
+  }
+
+  try {
+    const userId = event.queryStringParameters?.userId;
+    const startDate = event.queryStringParameters?.startDate;
+    const endDate = event.queryStringParameters?.endDate;
+
+    if (!userId || !startDate || !endDate) {
+      return {
+        statusCode: 400,
+        headers: corsHeaders,
+        body: JSON.stringify({ error: "userId, startDate, and endDate are required" }),
+      };
+    }
+
+    const result = await docClient.send(
+      new QueryCommand({
+        TableName: TABLE_NAME,
+        KeyConditionExpression: "userId = :userId AND #date BETWEEN :startDate AND :endDate",
+        ExpressionAttributeNames: { "#date": "date" },
+        ExpressionAttributeValues: {
+          ":userId": userId,
+          ":startDate": startDate,
+          ":endDate": endDate,
+        },
+      }),
+    );
+
+    const metrics = (result.Items || []).sort((a, b) => a.date.localeCompare(b.date));
+
+    return {
+      statusCode: 200,
+      headers: corsHeaders,
+      body: JSON.stringify({ metrics }),
+    };
+  } catch (error) {
+    console.error("getMetricsRange error:", error);
+    return {
+      statusCode: 500,
+      headers: corsHeaders,
+      body: JSON.stringify({ error: "Failed to load metrics range" }),
+    };
+  }
+};
+```
 
 #### Cognito User Pool
 Set up authentication:
 - Sign-in option: Email
-- Required attributes: `preferred_username`
+- Required attributes: `preferred_username`, `name`, and `phone_number` (the signup form collects all three; they must be enabled on the user pool or signup fails)
 - Self-registration: Enabled
 - Update `awsconfig.js` with your User Pool details
+- Cognito domain in `awsconfig.js` must be the hostname only (no `https://`); Amplify adds the protocol itself
 
 ### 4. Update Configuration
 
@@ -100,7 +352,7 @@ const config = {
       userPoolClientId: 'YOUR_APP_CLIENT_ID',
       loginWith: {
         oauth: {
-          domain: 'YOUR_COGNITO_DOMAIN',
+          domain: 'your-prefix.auth.region.amazoncognito.com', // hostname only, no https://
           // ... other settings
         }
       }
@@ -109,7 +361,13 @@ const config = {
 };
 ```
 
-Edit `src/api/metrics.js` with your API Gateway endpoints.
+Create a `.env` file in the project root:
+
+```
+VITE_API_BASE=https://YOUR_API_ID.execute-api.YOUR_REGION.amazonaws.com/prod
+```
+
+The frontend reads this in `src/api/metrics.js` — do not hardcode the URL in source.
 
 ### 5. Run Development Server
 ```bash
@@ -141,6 +399,7 @@ me-good/
 │   └── index.css
 ├── lambda/
 │   ├── getMetrics.js
+│   ├── getMetricsRange.js
 │   ├── updateMetrics.js
 │   └── simulateHeart.js
 └── package.json
