@@ -17,7 +17,10 @@ export const getMetricsRange = async (userId, startDate, endDate) => {
 };
 
 export const updateMetrics = async (userId, data) => {
-  const res = await axios.post(`${API_BASE}/metrics`, { userId, ...data });
+  const res = await axios.post(`${API_BASE}/metrics`, {
+    userId,
+    ...data,
+  });
   return res.data;
 };
 

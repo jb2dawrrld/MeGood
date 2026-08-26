@@ -3,7 +3,7 @@
 A modern, real-time fitness tracking dashboard built with React and AWS serverless architecture. Track your daily steps, calories burned/consumed, heart rate, and monitor your progress toward fitness goals.
 (Built as a learning-focused project to explore AWS serverless architecture and authentication flows. All metrics are simulated.)
 
-## ✨ Features
+## Features
 
 - **Real-time Metrics Tracking**
   - Live heart rate monitoring (simulated stream every 3 seconds)
@@ -34,7 +34,7 @@ A modern, real-time fitness tracking dashboard built with React and AWS serverle
   - User profile with initials and dropdown
   - Elegant card-based layout with minimal shadow
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 **Frontend:**
 - React 18 with Vite
@@ -49,13 +49,13 @@ A modern, real-time fitness tracking dashboard built with React and AWS serverle
 - AWS API Gateway for REST endpoints
 - AWS Cognito for user management
 
-## 📋 Prerequisites
+## Prerequisites
 
 - Node.js (v16 or higher)
 - AWS Account
 - npm or yarn package manager
 
-## 🚀 Getting Started
+## Getting Started
 
 ### 1. Clone the Repository
 ```bash
@@ -77,17 +77,40 @@ Create a table with:
 - Sort key: `date` (String, format: YYYY-MM-DD)
 
 #### Lambda Functions
-Deploy three Lambda functions:
-1. **getMetrics** - Retrieves user's metrics for a specific date
-2. **updateMetrics** - Saves/updates daily metrics
-3. **simulateHeart** - Simulates heart rate data stream
+
+Source files live in [`lambda/`](lambda/). Deploy **four** functions (the dashboard also calls `getMetricsRange` for charts):
+
+| Lambda | API Gateway route | Method |
+|--------|-------------------|--------|
+| `getMetrics` | `/metrics` | GET |
+| `getMetricsRange` | `/metrics/range` | GET |
+| `updateMetrics` | `/metrics` | POST |
+| `simulateHeart` | `/metrics/heart-rate-stream` | GET |
+
+**For each Lambda:**
+- Runtime: **Node.js 18.x** or **20.x** (AWS SDK v3 is included in the runtime)
+- Environment variable: `TABLE_NAME` = `MeGoodMetrics` (optional; defaults to `MeGoodMetrics`)
+- IAM: allow `dynamodb:GetItem`, `PutItem`, and `Query` on your table ARN (`simulateHeart` needs no DynamoDB access)
+- Enable **Lambda proxy integration** on API Gateway
+- Enable **CORS** on API Gateway (or rely on the `OPTIONS` handlers in each function)
+
+Set `VITE_API_BASE` in a `.env` file to your API Gateway stage URL, e.g. `https://abc123.execute-api.us-east-2.amazonaws.com/prod`
+
+---
+
+
+
+##### `lambda/getMetricsRange.js` (for trend charts)
+
+---
 
 #### Cognito User Pool
 Set up authentication:
 - Sign-in option: Email
-- Required attributes: `preferred_username`
+- Required attributes: `preferred_username`, `name`, and `phone_number` (the signup form collects all three; they must be enabled on the user pool or signup fails)
 - Self-registration: Enabled
 - Update `awsconfig.js` with your User Pool details
+- Cognito domain in `awsconfig.js` must be the hostname only (no `https://`); Amplify adds the protocol itself
 
 ### 4. Update Configuration
 
@@ -100,8 +123,7 @@ const config = {
       userPoolClientId: 'YOUR_APP_CLIENT_ID',
       loginWith: {
         oauth: {
-          domain: 'YOUR_COGNITO_DOMAIN',
-          // ... other settings
+          domain: 'your-prefix.auth.region.amazoncognito.com', 
         }
       }
     }
@@ -109,7 +131,13 @@ const config = {
 };
 ```
 
-Edit `src/api/metrics.js` with your API Gateway endpoints.
+Create a `.env` file in the project root:
+
+```
+VITE_API_BASE=https://YOUR_API_ID.execute-api.YOUR_REGION.amazonaws.com/prod
+```
+
+The frontend reads this in `src/api/metrics.js` — do not hardcode the URL in source.
 
 ### 5. Run Development Server
 ```bash
@@ -118,7 +146,7 @@ npm run dev
 
 Visit `http://localhost:5173`
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 me-good/
@@ -141,12 +169,13 @@ me-good/
 │   └── index.css
 ├── lambda/
 │   ├── getMetrics.js
+│   ├── getMetricsRange.js
 │   ├── updateMetrics.js
 │   └── simulateHeart.js
 └── package.json
 ```
 
-## 🔑 Key Features Explained
+## Key Features Explained
 
 ### Auto-Save System
 - Metrics save automatically every 60 seconds
@@ -164,7 +193,7 @@ me-good/
 - No cross-user data access
 - Secure authentication flow
 
-## 🎨 UI Components
+## UI Components
 
 - **Header**: Displays greeting, user name, navigation menu, and sign-out button
 - **Metrics Cards**: Show heart rate and step count in real-time
@@ -172,7 +201,7 @@ me-good/
 - **Goal Progress**: Animated progress bars for daily goals
 - **Calorie Balance**: Shows net calorie surplus/deficit
 
-## 🔒 Security
+## Security
 
 - AWS Cognito handles authentication
 - Email verification required
@@ -180,13 +209,13 @@ me-good/
 - JWT tokens for API authorization
 - User data isolated by Cognito userId
 
-## 🚧 Known Issues
+## Known Issues
 
 - React 19 compatibility: Use React 18 for best compatibility with AWS Amplify UI.
 
-## 📝 Future Enhancements
+## Future Enhancements
 
-- [ ] Weekly/monthly trend charts
+- [ ] Weekly/monthly trend charts(complete!)
 - [ ] Custom goal setting
 - [ ] Activity type tracking (running, cycling, etc.)
 - [ ] Social features (friends, leaderboards)
@@ -195,18 +224,9 @@ me-good/
 - [ ] Nutrition tracking
 - [ ] Exercise recommendations
 
-## 🤝 Contributing
 
 Contributions are welcome!
 
 
-## 👨‍💻 Author
-
 Built by Jabali Muriithi. (Learning Project)
 
-## 🙏 Acknowledgments
-
-- AWS for serverless infrastructure
-- Amplify team for authentication library
-- Lucide for beautiful icons
-- Tailwind CSS for styling utilities
